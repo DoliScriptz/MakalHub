@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makal Hub - MM2 Script Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c1445 0%, #1e3c72 50%, #2a5298 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ocean Wave Animation */
+        .ocean {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0c1445 0%, #1e3c72 50%, #2a5298 100%);
+            z-index: -2;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200px;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border-radius: 50%;
+            animation: wave 8s ease-in-out infinite;
+        }
+
+        .wave:nth-child(1) {
+            top: 20%;
+            left: -50%;
+            animation-delay: 0s;
+        }
+
+        .wave:nth-child(2) {
+            top: 40%;
+            left: -30%;
+            animation-delay: -2s;
+        }
+
+        .wave:nth-child(3) {
+            top: 60%;
+            left: -70%;
+            animation-delay: -4s;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateX(50px) rotate(180deg);
+                opacity: 0.1;
+            }
+        }
+
+        /* Floating Bubbles */
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bubble:nth-child(1) {
+            width: 40px;
+            height: 40px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            top: 20%;
+            right: 10%;
+            animation-delay: -2s;
+        }
+
+        .bubble:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -4s;
+        }
+
+        .bubble:nth-child(4) {
+            width: 30px;
+            height: 30px;
+            bottom: 10%;
+            right: 20%;
+            animation-delay: -1s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.1);
+                opacity: 0.3;
+            }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2rem 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            background: url('https://i.imgur.com/Byly7Pp.jpeg') center/cover;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 30px rgba(77, 166, 255, 0.4),
+                0 0 60px rgba(77, 166, 255, 0.2),
+                inset 0 0 30px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-image::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .header-image:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 40px rgba(77, 166, 255, 0.6),
+                0 0 80px rgba(77, 166, 255, 0.3),
+                inset 0 0 40px rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .header-image:hover::before {
+            opacity: 1;
+            animation: shimmer-rotate 1.5s ease-in-out;
+        }
+
+        @keyframes shimmer-rotate {
+            0% {
+                transform: rotate(45deg) translate(-100%, -100%);
+            }
+            100% {
+                transform: rotate(45deg) translate(100%, 100%);
+            }
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #ffffff, #a8d8ff, #4da6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .version {
+            font-size: 1.2rem;
+            color: #a8d8ff;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #4da6ff, #0066cc);
+            border-color: #4da6ff;
+            box-shadow: 0 0 30px rgba(77, 166, 255, 0.4);
+        }
+
+        /* Content Sections */
+        .content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Script Section */
+        .script-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .script-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .script-description {
+            font-size: 1.3rem;
+            color: #a8d8ff;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .script-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .script-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .script-window {
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .window-header {
+            background: linear-gradient(135deg, #333, #555);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28ca42; }
+
+        .window-title {
+            color: #fff;
+            margin-left: 1rem;
+            font-weight: 600;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .code-comment { color: #6272a4; }
+        .code-string { color: #f1fa8c; }
+        .code-function { color: #50fa7b; }
+        .code-keyword { color: #ff79c6; }
+
+        .copy-button {
+            background: linear-gradient(135deg, #4da6ff, #0066cc);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(77, 166, 255, 0.3);
+            margin-top: 1rem;
+        }
+
+        .copy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(77, 166, 255, 0.4);
+        }
+
+        /* Discord Section */
+        .discord-content {
+            text-align: center;
+        }
+
+        .discord-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .discord-description {
+            font-size: 1.2rem;
+            color: #a8d8ff;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .discord-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(135deg, #5865f2, #4752c4);
+            color: white;
+            text-decoration: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.3);
+        }
+
+        .discord-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(88, 101, 242, 0.4);
+        }
+
+        .discord-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            color: #a8d8ff;
+            line-height: 1.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .content {
+                padding: 2rem 1.5rem;
+            }
+            
+            .script-title,
+            .discord-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ocean Background Effects -->
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-image"></div>
+        <h1 class="logo">Makal Hub</h1>
+        <p class="version">MM2 VERSION: 0.2</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showSection('script')">Get Script</div>
+            <div class="nav-tab" onclick="showSection('discord')">Discord</div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Script Section -->
+            <div id="script" class="section active">
+                <div class="script-header">
+                    <h2 class="script-title">Makal Hub</h2>
+                    <p class="script-description">Official Makal Hub MM2 Hub.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3 class="feature-title">Combat Features</h3>
+                        <p class="feature-description">Good Features That Makes Your gameplay Better than it should Be!</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👁️</div>
+                        <h3 class="feature-title">Visual Enhancements</h3>
+                        <p class="feature-description">See through walls, player ESP, and visual indicators for better gameplay</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📡</div>
+                        <h3 class="feature-title">Teleportation</h3>
+                        <p class="feature-description">Instant teleport to any location or player</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚙️</div>
+                        <h3 class="feature-title">Miscellaneous</h3>
+                        <p class="feature-description">Extra Features To Spice Up The Power Of Hacking</p>
+                    </div>
+                </div>
+
+                <div class="script-preview">
+                    <div class="script-window">
+                        <div class="window-header">
+                            <div class="window-dot dot-red"></div>
+                            <div class="window-dot dot-yellow"></div>
+                            <div class="window-dot dot-green"></div>
+                            <span class="window-title">Makal Hub Script</span>
+                        </div>
+                        <div class="code-content">
+<span class="code-comment">-- Makal Hub MM2 Script</span>
+<span class="code-comment">-- Version 0.2</span>
+
+<span class="code-function">loadstring</span>(<span class="code-function">game</span>:<span class="code-function">HttpGet</span>(<span class="code-string">"https://api.luarmor.net/files/v3/loaders/f3413bee52d5812bbaa876167c71f908.lua"</span>))()
+
+<span class="code-comment">-- Features: Combat, Visuals, Teleports, Misc</span>
+<span class="code-comment">-- Status: ✅ Undetected | ✅ Keyless</span>
+                        </div>
+                    </div>
+                    <button class="copy-button" onclick="copyScript()">📋 Copy Script</button>
+                </div>
+            </div>
+
+            <!-- Discord Section -->
+            <div id="discord" class="section">
+                <div class="discord-content">
+                    <h2 class="discord-title">Join Our Community</h2>
+                    <p class="discord-description">
+                        Connect with Our Community, get support, updates, and exclusive content on our Discord server!
+                    </p>
+                    
+                    <a href="https://discord.gg/8MYHkaJqWt" class="discord-button" target="_blank">
+                        <svg class="discord-icon" viewBox="0 0 24 24">
+                            <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 13.83 13.83 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.246.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.201 0 2.176 1.068 2.157 2.38 0 1.311-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.201 0 2.176 1.068 2.157 2.38 0 1.311-.956 2.38-2.157 2.38z"/>
+                        </svg>
+                        Join Discord Server
+                    </a>
+
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">💬</div>
+                            <h3 class="feature-title">Community Chat</h3>
+                            <p class="feature-description">Chat with other players and share your experiences</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🔔</div>
+                            <h3 class="feature-title">Updates & News</h3>
+                            <p class="feature-description">Get notified about new features and script updates</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🛠️</div>
+                            <h3 class="feature-title">Support</h3>
+                            <p class="feature-description">Get help from our support team and community</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎁</div>
+                            <h3 class="feature-title">Exclusive Content</h3>
+                            <p class="feature-description">Access to exclusive scripts and premium features</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function copyScript() {
+            const scriptCode = `loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/f3413bee52d5812bbaa876167c71f908.lua"))()`;
+
+            navigator.clipboard.writeText(scriptCode).then(() => {
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = 'linear-gradient(135deg, #4da6ff, #0066cc)';
+                }, 2000);
+            });
+        }
+
+        // Add floating animation to bubbles
+        document.addEventListener('DOMContentLoaded', function() {
+            const bubbles = document.querySelectorAll('.bubble');
+            bubbles.forEach((bubble, index) => {
+                bubble.style.animationDelay = `${index * -1.5}s`;
+            });
+        });
+    </script>
+</body>
+</html>
