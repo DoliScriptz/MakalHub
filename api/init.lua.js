@@ -8,10 +8,17 @@ export default async function handler(req, res) {
   const fileName = "hwids.json";
 
   const ua = req.headers["user-agent"] || "";
-  if (ua.includes("Mozilla") || ua.includes("Chrome") || ua.includes("Safari") || req.method !== "GET") {
-    return res.status(403).send("-- ❌ Forbidden");
-  }
+const accept = req.headers["accept"] || "";
 
+const isBrowser =
+  accept.includes("text/html") ||  // most browsers
+  ua.includes("Chrome") ||         // avoid partial Chrome bots
+  ua.includes("Safari") ||
+  (ua.includes("Mozilla") && accept.includes("application/xhtml+xml"));
+
+if (isBrowser || req.method !== "GET") {
+  return res.status(403).send("-- ❌ Forbidden");
+}
   // Get UserId and Username from headers or fallback
   const referer = req.headers["referer"] || "";
   const match = referer.match(/userid=(\d+)&username=([A-Za-z0-9_]+)/);
