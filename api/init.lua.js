@@ -15,6 +15,7 @@ local function getUserData()
   if not req then error("No HTTP support") end
   local res = req({ Url = url, Method = "GET" })
   if not res or not res.Body then error("Access Error") end
+
   local ok, data = pcall(HttpService.JSONDecode, HttpService, res.Body)
   if not ok or data.status ~= "success" then error("Access Error") end
   return data.user
@@ -27,5 +28,5 @@ print("Welcome, " .. user.username)
 print("🔑 HWID:    " .. user.hwid)
 print("🆔 UserID:  " .. user.userid)
 print("⭐ Status:  " .. user.status)
-`);
+`)
 }
