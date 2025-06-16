@@ -3,31 +3,34 @@ import crypto from "crypto";
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
   const { userid, username } = req.query;
-  if (!userid || !username) return res.status(400).json({ status: "error" });
+  if (!userid || !username) return res.status(400).json({ status: "error", reason: "Missing userid or username" });
 
   const hwid = crypto
-    .createHmac("sha256", process.env.HWID_SECRET)
+    .createHmac("sha256", process.env.HWID_SECRET || "")
     .update(`${userid}:${username}`)
     .digest("hex");
 
-  const url = "https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/hwids.json";
   let db = { users: {} };
   try {
-    db = await (await fetch(url)).json();
+    const resp = await fetch("https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/hwids.json");
+    db = await resp.json();
   } catch {}
 
-  db.users[hwid] = db.users[hwid] or {
-    userid: Number(userid),
-    username: username,
-    status: "free",
-    added: new Date().toISOString()
-  };
+  db.users = db.users || {};
+  if (!db.users[hwid]) {
+    db.users[hwid] = {
+      userid: Number(userid),
+      username,
+      status: "free",
+      added: new Date().toISOString()
+    };
+    // (You can choose to write back here if you want auto-registration)
+  }
 
-  const status = db.users[hwid].status; // "free", "premium" or "blacklist"
-
+  const user = db.users[hwid];
   res.setHeader("Content-Type", "application/json");
-  res.status(200).json({
+  res.end(JSON.stringify({
     status: "success",
-    user: { hwid, ...db.users[hwid] }
-  });
+    user: { hwid, userid: user.userid, username: user.username, status: user.status }
+  }));
 }
