@@ -10,23 +10,24 @@ export default async function handler(req, res) {
     .update(`${userid}:${username}`)
     .digest("hex");
 
-  let db = { premium: {}, blacklist: {} };
+  const url = "https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/hwids.json";
+  let db = { users: {} };
   try {
-    const r = await fetch(
-      "https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/hwids.json"
-    );
-    db = await r.json();
+    db = await (await fetch(url)).json();
   } catch {}
 
-  const status = db.blacklist[hwid]
-    ? "blacklist"
-    : db.premium[hwid]
-    ? "premium"
-    : "free";
+  db.users[hwid] = db.users[hwid] or {
+    userid: Number(userid),
+    username: username,
+    status: "free",
+    added: new Date().toISOString()
+  };
+
+  const status = db.users[hwid].status; // "free", "premium" or "blacklist"
 
   res.setHeader("Content-Type", "application/json");
   res.status(200).json({
     status: "success",
-    user: { userid: Number(userid), username, hwid, status },
+    user: { hwid, ...db.users[hwid] }
   });
 }
