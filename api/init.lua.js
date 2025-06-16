@@ -8,9 +8,13 @@ local lp          = Players.LocalPlayer
 local function getUserData()
     local url = ("https://makalhub.vercel.app/api/init.json?userid=%d&username=%s")
         :format(lp.UserId, HttpService:UrlEncode(lp.Name))
-    local ok, body = pcall(HttpService.GetAsync, HttpService, url)
-    if not ok then error("Access Error") end
-    local data = HttpService:JSONDecode(body)
+    local req = (syn and syn.request)
+             or (http and http.request)
+             or request
+    if not req then error("No HTTP support") end
+    local res = req({ Url = url, Method = "GET" })
+    if not res or not res.Body then error("Access Error") end
+    local data = HttpService:JSONDecode(res.Body)
     if data.status ~= "success" then error("Access Error") end
     return data.user
 end
