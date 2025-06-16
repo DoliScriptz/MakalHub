@@ -1,73 +1,50 @@
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  const secret = process.env.HWID_SECRET || "default_secret";
-  const githubToken = process.env.GITHUB_TOKEN; // your PAT
-  const repoOwner = "DoliScriptz";
-  const repoName = "MakalHub";
-  const fileName = "hwids.json";
+  const ua = (req.headers["user-agent"] || "").toLowerCase();
+  if ((ua.includes("mozilla") || ua.includes("chrome") || ua.includes("safari")) || req.method !== "GET")
+    return res.status(403).send("-- forbidden");
 
-  const ua = req.headers["user-agent"] || "";
-const accept = req.headers["accept"] || "";
+  const userid   = req.headers["x-userid"];
+  const username = req.headers["x-username"];
+  if (!userid || !username)
+    return res.status(400).send("-- missing headers");
 
-const isBrowser =
-  accept.includes("text/html") ||  // most browsers
-  ua.includes("Chrome") ||         // avoid partial Chrome bots
-  ua.includes("Safari") ||
-  (ua.includes("Mozilla") && accept.includes("application/xhtml+xml"));
+  const hwid = crypto
+    .createHmac("sha256", process.env.HWID_SECRET)
+    .update(`${userid}:${username}`)
+    .digest("hex");
 
-if (isBrowser || req.method !== "GET") {
-  return res.status(403).send("-- ❌ Forbidden");
-}
-  // Get UserId and Username from headers or fallback
-  const referer = req.headers["referer"] || "";
-  const match = referer.match(/userid=(\d+)&username=([A-Za-z0-9_]+)/);
-  const userid = match ? match[1] : "0";
-  const username = match ? match[2] : "Anonymous";
-  const base = `${userid}:${username}`;
-  const hwid = crypto.createHmac("sha256", secret).update(base).digest("hex");
+  const owner = "DoliScriptz";
+  const repo  = "MakalHub";
+  const path  = "hwids.json";
+  let db = { premium: {}, blacklist: {} }, sha = "";
 
-  // Get current hwids.json
-  let hwids = {};
-  let sha = "";
   try {
-    const resp = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`);
-    const json = await resp.json();
-    const content = Buffer.from(json.content, "base64").toString();
-    hwids = JSON.parse(content);
-    sha = json.sha;
-  } catch (e) {
-    hwids = {};
-  }
+    const r    = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+    const js   = await r.json();
+    sha        = js.sha;
+    db         = JSON.parse(Buffer.from(js.content, "base64").toString());
+    db.premium   = db.premium   || {};
+    db.blacklist = db.blacklist || {};
+  } catch {}
 
-  // Add if not exists
-  if (!hwids[hwid]) {
-    hwids[hwid] = {
-      premium: false,
-      username,
-      userid: Number(userid)
-    };
-
-    const payload = {
-      message: "Auto-register HWID",
-      content: Buffer.from(JSON.stringify(hwids, null, 2)).toString("base64"),
-      sha,
-    };
-
-    await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`, {
-      method: "PUT",
+  if (!db.premium[hwid] && !db.blacklist[hwid]) {
+    db.premium[hwid] = { userid: Number(userid), username, added: new Date().toISOString() };
+    const content = Buffer.from(JSON.stringify(db, null, 2)).toString("base64");
+    await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method:  "PUT",
       headers: {
-        "Authorization": `Bearer ${githubToken}`,
-        "Content-Type": "application/json"
+        "Authorization": `Bearer ${process.env.GITHUB_TOKEN}`,
+        "Content-Type":  "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ message: `register ${username}`, content, sha })
     });
   }
 
-  const isPremium = hwids[hwid]?.premium || false;
+  const isPremium = !!db.premium[hwid];
 
   const lua = `
--- ✅ MakalHub Init
 _G.MakalResult = {
   hwid = "${hwid}",
   userid = ${userid},
@@ -75,11 +52,13 @@ _G.MakalResult = {
   isPremium = ${isPremium}
 }
 
-print("✅ MakalHub Loaded")
-print("🔑 HWID:", _G.MakalResult.hwid)
-print("⭐ Premium:", _G.MakalResult.isPremium)
+print("Welcome, " .. _G.MakalResult.username)
+print("HWID: "     .. _G.MakalResult.hwid)
+print("Username: " .. _G.MakalResult.username)
+print("UserID: "   .. _G.MakalResult.userid)
+print("Premium: "  .. (_G.MakalResult.isPremium and "Yes" or "No"))
 `;
 
   res.setHeader("Content-Type", "text/plain");
-  return res.status(200).send(lua.trim());
+  res.status(200).send(lua.trim());
 }
