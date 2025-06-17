@@ -11,34 +11,27 @@ export default async function handler(req, res) {
     .digest("hex");
 
   const url = "https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/hwids.json";
-  let db = { users: {} };
+  let db = { users: {} }, sha = "";
   try {
-    const r = await fetch(url);
-    db = await r.json();
+    const r = await fetch(`https://api.github.com/repos/DoliScriptz/MakalHub/contents/hwids.json`);
+    const j = await r.json();
+    sha = j.sha;
+    db = JSON.parse(Buffer.from(j.content, "base64").toString());
   } catch {}
   db.users ||= {};
   if (!db.users[hwid]) {
-    db.users[hwid] = {
-      userid: Number(userid),
-      username,
-      status: "free",
-      added: new Date().toISOString()
-    };
+    db.users[hwid] = { userid: Number(userid), username, status: "free", added: new Date().toISOString() };
     const content = Buffer.from(JSON.stringify(db, null, 2)).toString("base64");
-    await fetch("https://api.github.com/repos/DoliScriptz/MakalHub/contents/hwids.json", {
+    await fetch(`https://api.github.com/repos/DoliScriptz/MakalHub/contents/hwids.json`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ message: `register ${username}`, content, sha: "" })
+      body: JSON.stringify({ message: `register ${username}`, content, sha })
     });
   }
-
   const user = db.users[hwid];
   res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify({
-    status: "success",
-    user: { hwid, userid: user.userid, username: user.username, status: user.status }
-  }));
+  res.end(JSON.stringify({ status: "success", user: { hwid, userid: user.userid, username: user.username, status: user.status } }));
 }
