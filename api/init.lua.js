@@ -1,32 +1,50 @@
-export default function handler(req, res) {
+import crypto from "crypto";
+
+function hexToBytes(hex) {
+  const bytes = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(parseInt(hex.substring(i, i + 2), 16));
+  }
+  return Buffer.from(bytes);
+}
+
+function xor(buf, key) {
+  const k = Buffer.from(key);
+  for (let i = 0; i < buf.length; i++) {
+    buf[i] ^= k[i % k.length];
+  }
+  return buf;
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "GET") return res.status(405).send("forbidden");
+  const ua = (req.headers["user-agent"] || "").toLowerCase();
+  if (!ua.includes("makalhubexecutor")) return res.status(403).send("forbidden");
+
+  const enc = req.query.key;
+  if (!enc) return res.status(400).send("forbidden");
+
+  let buf = hexToBytes(enc);
+  buf = xor(buf, "\u00AA");
+  const b64 = buf.toString("utf8");
+  const dec = Buffer.from(b64, "base64").toString("utf8");
+  const [hwid, userid] = dec.split(":");
+
+  let db = { users: {} };
+  try {
+    const r = await fetch("https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/hwids.json");
+    db = await r.json();
+  } catch {}
+  const user = db.users[hwid];
+  const status = user && user.userid.toString() === userid ? user.status : "blacklist";
+
   res.setHeader("Content-Type", "text/plain");
   res.end(`
-local HttpService = game:GetService("HttpService")
-local Players     = game:GetService("Players")
-local lp          = Players.LocalPlayer
-
-local function getUserData()
-  local url = string.format(
-    "https://makalhub.vercel.app/api/init.json?userid=%d&username=%s",
-    lp.UserId,
-    HttpService:UrlEncode(lp.Name)
-  )
-  local req = (syn and syn.request) or (http and http.request) or request
-  if not req then error("No HTTP support") end
-  local res = req({ Url = url, Method = "GET" })
-  if not res or not res.Body then error("Access Error") end
-
-  local ok, data = pcall(HttpService.JSONDecode, HttpService, res.Body)
-  if not ok or data.status ~= "success" then error("Access Error") end
-  return data.user
-end
-
-local user = getUserData()
-_G.MakalResult = user
-
-print("Welcome, " .. user.username)
-print("🔑 HWID:    " .. user.hwid)
-print("🆔 UserID:  " .. user.userid)
-print("⭐ Status:  " .. user.status)
-`)
+_G.MakalResult = {
+  hwid = "${hwid}",
+  userid = ${userid},
+  username = "${user?.username or "Unknown"}",
+  status = "${status}"
+}
+`);
 }
