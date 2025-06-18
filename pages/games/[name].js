@@ -1,36 +1,24 @@
 import rateLimit from "@/utils/ratelimit";
-import { NextResponse } from "next/server";
 
-const limiter = rateLimit({
-  interval: 600000, // 10 minutes
-  uniqueTokenPerInterval: 500,
-});
+const allowUserAgent = "MakalHubExecutor";
+
+const githubBase = "https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/scripts/";
 
 export default async function handler(req, res) {
+  const { name } = req.query;
   const agent = req.headers["user-agent"] || "";
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
-  // Protect from non-allowed User-Agents (like browsers)
-  if (!agent.includes("MakalHubExecutor")) {
-    return res.status(403).end("Forbidden");
-  }
+  if (req.method !== "GET") return res.status(405).end();
+  if (!agent.includes(allowUserAgent)) return res.status(403).end("Forbidden");
 
-  try {
-    await limiter.check(res, 3, ip);
-  } catch {
-    return res.status(429).end("Rate limit exceeded");
-  }
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
+  const { success } = await rateLimit.limit(ip);
+  if (!success) return res.status(429).end("Rate limit exceeded");
 
-  const name = req.query.name;
-  if (!name || !/^[\w\-]+$/.test(name)) {
-    return res.status(400).end("Invalid name");
-  }
-
-  const url = `https://raw.githubusercontent.com/DoliScriptz/MakalHub/main/scripts/${name}.lua`;
-  const response = await fetch(url);
+  const response = await fetch(githubBase + name + ".lua");
   if (!response.ok) return res.status(404).end("Script not found");
 
   const script = await response.text();
   res.setHeader("Content-Type", "text/plain");
-  res.status(200).send(script);
+  return res.status(200).send(script);
 }
