@@ -2,7 +2,7 @@ local http = (syn and syn.request) or (http and http.request) or request or http
 assert(http, "Executor not supported")
 local hs = game:GetService("HttpService")
 local pl = game:GetService("Players").LocalPlayer
-local gid = pl.PlaceId
+local gid = game.PlaceId
 local m = {
     [537413528] = "babft"
 }
