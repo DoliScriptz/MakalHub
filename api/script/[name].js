@@ -6,7 +6,9 @@ export default function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
   if (req.headers["user-agent"] !== "MakalHubExecutor") return res.status(403).end("Forbidden");
 
-  const { name, token } = req.query;
+  const { name } = req.query; // comes from file name [name].js
+  const { token } = req.query;
+
   if (!name || !token) return res.status(400).end("Missing name or token");
 
   const parts = token.split(":");
@@ -19,6 +21,7 @@ export default function handler(req, res) {
     .createHmac("sha256", process.env.HWID_SECRET)
     .update(`${userid}:${username}:${expires}`)
     .digest("hex");
+
   if (sig !== expected) return res.status(403).end("Invalid token");
 
   const filePath = path.resolve("scripts", `${name}.lua`);
