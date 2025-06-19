@@ -1,26 +1,16 @@
-local r = (syn and syn.request) or (http and http.request) or request or http_request
-assert(r, "Executor not supported")
-local h = game:GetService("HttpService")
-local p = game:GetService("Players").LocalPlayer
-local id = game.PlaceId
-local g = {
-	[537413528] = "babft"
-}
-local n = g[id]
-assert(n, "Game not supported")
-local i = r({
-	Url = ("https://makalhub.vercel.app/api/init?userid=%s&username=%s"):format(p.UserId, h:UrlEncode(p.Name)),
-	Method = "GET",
-	Headers = {["User-Agent"] = "MakalHubExecutor"}
-})
-assert(i and i.Body, "Init request failed")
-local t = h:JSONDecode(i.Body).token
-assert(t, "Token missing")
+local r=(syn and syn.request)or(http and http.request)or request or http_request
+assert(r,"Executor not supported")
+local H=game:GetService("HttpService")
+local P=game.Players.LocalPlayer
+local G=game.PlaceId
+local M={[537413528]="babft"}
+local N=M[G]
+assert(N,"Game not supported")
 
-local s = r({
-	Url = "https://makalhub.vercel.app/api/script/" .. n .. "?token=" .. h:UrlEncode(t),
-	Method = "GET",
-	Headers = {["User-Agent"] = "MakalHubExecutor"}
-})
-assert(s and s.StatusCode == 200 and s.Body, "Failed to fetch script")
-loadstring(s.Body)()
+local I=r{Url=("https://makalhub.vercel.app/api/init?userid=%d&username=%s"):format(P.UserId,H:UrlEncode(P.Name)),Method="GET",Headers={["User-Agent"]="MakalHubExecutor"}}
+assert(I and I.Body,"Init failed")
+local T=H:JSONDecode(I.Body).token
+
+local S=r{Url=("https://makalhub.vercel.app/scripts/"..N..".lua?token="..H:UrlEncode(T)),Method="GET",Headers={["User-Agent"]="MakalHubExecutor"}}
+assert(S and S.Body,"Failed to fetch script")
+loadstring(S.Body)()
