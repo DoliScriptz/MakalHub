@@ -1,28 +1,45 @@
-import fs from "fs";
-import path from "path";
 import crypto from "crypto";
 
 export default function handler(req, res) {
-  if (req.method !== "GET") return res.status(405).end();
-  if (req.headers["user-agent"] !== "MakalHubExecutor") return res.status(403).end();
+  if (req.method !== "GET") return res.status(405).end("Method Not Allowed");
+
+  const ua = req.headers["user-agent"];
+  if (ua !== "MakalHubExecutor") return res.status(403).end("Forbidden");
 
   const { token } = req.query;
-  if (!token) return res.status(400).end();
+  if (!token) return res.status(400).end("Missing token");
 
   const parts = token.split(":");
-  if (parts.length !== 4) return res.status(400).end();
-  const [uid, usr, exp, sig] = parts;
-  if (Date.now() > +exp) return res.status(403).end();
+  if (parts.length !== 4) return res.status(400).end("Malformed token");
 
-  const ok = crypto
+  const [userid, username, expires, signature] = parts;
+  if (Date.now() > +expires) return res.status(403).end("Token expired");
+
+  const expectedSig = crypto
     .createHmac("sha256", process.env.HWID_SECRET)
-    .update(`${uid}:${usr}:${exp}`)
+    .update(`${userid}:${username}:${expires}`)
     .digest("hex");
-  if (sig !== ok) return res.status(403).end();
 
-  const file = path.resolve("scripts", "loader.lua");
-  if (!fs.existsSync(file)) return res.status(404).end("Script not found");
-  const lua = fs.readFileSync(file, "utf8");
+  if (expectedSig !== signature) return res.status(403).end("Invalid signature");
+
+  // Respond with the protected Lua loader code
+  const lua = `
+local r=(syn and syn.request)or(http and http.request)or(request)or(http_request)
+assert(r, "Executor not supported")
+local h=game:GetService("HttpService")
+local p=game:GetService("Players").LocalPlayer
+local gid=game.PlaceId
+local map={[537413528]="babft"}
+local name=map[gid]
+assert(name, "Unsupported game")
+local s=r({
+  Url=("https://makalhub.vercel.app/api/script/"..name.."?token="..h:UrlEncode("${token}")),
+  Method="GET",
+  Headers={["User-Agent"]="MakalHubExecutor"}
+})
+assert(s and s.Body, "Script fetch failed")
+loadstring(s.Body)()
+`.trim();
 
   res.setHeader("Content-Type", "text/plain");
   res.status(200).send(lua);
