@@ -1,45 +1,40 @@
 import crypto from "crypto";
 
 export default function handler(req, res) {
-  if (req.method !== "GET") return res.status(405).end("Method Not Allowed");
-
-  const ua = req.headers["user-agent"];
-  if (ua !== "MakalHubExecutor") return res.status(403).end("Forbidden");
+  if (req.method !== "GET") return res.status(405).end();
+  if (req.headers["user-agent"] !== "MakalHubExecutor") return res.status(403).end();
 
   const { token } = req.query;
-  if (!token) return res.status(400).end("Missing token");
+  if (!token) return res.status(400).end();
 
   const parts = token.split(":");
-  if (parts.length !== 4) return res.status(400).end("Malformed token");
+  if (parts.length !== 4) return res.status(400).end();
 
-  const [userid, username, expires, signature] = parts;
-  if (Date.now() > +expires) return res.status(403).end("Token expired");
+  const [uid, username, expires, sig] = parts;
+  if (Date.now() > parseInt(expires, 10)) return res.status(403).end();
 
   const expectedSig = crypto
     .createHmac("sha256", process.env.HWID_SECRET)
-    .update(`${userid}:${username}:${expires}`)
+    .update(`${uid}:${username}:${expires}`)
     .digest("hex");
 
-  if (expectedSig !== signature) return res.status(403).end("Invalid signature");
+  if (sig !== expectedSig) return res.status(403).end();
 
-  // Respond with the protected Lua loader code
   const lua = `
-local r=(syn and syn.request)or(http and http.request)or(request)or(http_request)
-assert(r, "Executor not supported")
-local h=game:GetService("HttpService")
-local p=game:GetService("Players").LocalPlayer
-local gid=game.PlaceId
-local map={[537413528]="babft"}
-local name=map[gid]
-assert(name, "Unsupported game")
-local s=r({
-  Url=("https://makalhub.vercel.app/api/script/"..name.."?token="..h:UrlEncode("${token}")),
-  Method="GET",
-  Headers={["User-Agent"]="MakalHubExecutor"}
-})
-assert(s and s.Body, "Script fetch failed")
-loadstring(s.Body)()
-`.trim();
+    local r=(syn and syn.request)or(http and http.request)or request or http_request
+    assert(r,"HTTP unsupported")
+    local h=game:GetService("HttpService")
+    local p=game:GetService("Players").LocalPlayer
+    local gid=game.PlaceId
+    local map={[537413528]="babft"}
+    local name=map[gid]
+    assert(name,"Game not supported")
+    local i=r{Url=("https://makalhub.vercel.app/api/init?userid="..p.UserId.."&username="..h:UrlEncode(p.Name)),Method="GET",Headers={["User-Agent"]="MakalHubExecutor"}}
+    local t=h:JSONDecode(i.Body).token
+    local s=r{Url=("https://makalhub.vercel.app/api/script/"..name.."?token="..h:UrlEncode(t)),Method="GET",Headers={["User-Agent"]="MakalHubExecutor"}}
+    assert(s and s.Body,"Script fetch failed")
+    loadstring(s.Body)()
+  `.trim();
 
   res.setHeader("Content-Type", "text/plain");
   res.status(200).send(lua);
