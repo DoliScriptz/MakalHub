@@ -1,41 +1,38 @@
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  const { key } = req.query;
-  if (!key) return res.status(400).send("-- No key");
+  if (req.method !== "GET") return res.status(405).end();
+  const key = req.query.key;
+  if (!key) return res.status(403).send("-- Forbidden");
 
-  const repo = "DoliScriptz/MakalHub";
-  const gh = await fetch(`https://api.github.com/repos/${repo}/contents/hwids.json`);
-  const json = await gh.json();
+  const raw = key.match(/../g).map(h => String.fromCharCode(parseInt(h, 16) ^ 0xAA)).join("");
+  const [hwid, userid] = raw.split(":");
+  if (!hwid || !userid) return res.status(403).send("-- Invalid HWID");
+
+  const owner = "DoliScriptz";
+  const repo = "MakalHub";
+  const path = "hwids.json";
+  const token = process.env.GITHUB_TOKEN;
+
+  const resp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+  const json = await resp.json();
   const db = JSON.parse(Buffer.from(json.content, "base64").toString());
-  db.users = db.users || {};
+  const user = db.users?.[hwid];
 
-  let matched = null;
-  for (const [hwid, data] of Object.entries(db.users)) {
-    const base = `${data.userid}:${data.username}`;
-    const b64 = Buffer.from(base).toString("base64");
-    const xor = Buffer.from(b64).map(b => b ^ 0xAA).toString("hex");
-    if (xor === key) {
-      matched = { hwid, ...data };
-      break;
-    }
-  }
-
-  if (!matched) return res.status(403).send("-- Invalid key");
+  if (!user || String(user.userid) !== userid) return res.status(403).send("-- HWID Mismatch");
 
   const lua = `
 _G.MakalResult = {
-  HWID = "${matched.hwid}",
-  UserID = ${matched.userid},
-  Username = "${matched.username}",
-  Status = "${matched.status}"
+  HWID = "${hwid}",
+  UserID = ${userid},
+  Username = "${user.username}",
+  Status = "${user.status}"
 }
-
 print("Welcome,", _G.MakalResult.Username)
 print("HWID:", _G.MakalResult.HWID)
 print("UserID:", _G.MakalResult.UserID)
-print("Premium:", _G.MakalResult.Status)
+print("Status:", _G.MakalResult.Status)
 `;
   res.setHeader("Content-Type", "text/plain");
-  res.send(lua.trim());
-        }
+  return res.status(200).send(lua.trim());
+}
