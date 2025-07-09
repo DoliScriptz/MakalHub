@@ -1,129 +1,9 @@
 {
   "users": {
-    "f3a00df29fabbe2d06658e19bfceac45ab07c06f29ff1bc5318ecfa79ea7c4a0": {
-      "userid": 5763190467,
-      "username": "Makalyxz",
-      "status": "premium"
-    },
-    "a2a8a286566c304b187c31c45beb60b4539dac31c57800b5422a05b7236b8fb9": {
-      "userid": 8578417384,
-      "username": "stealacharacter25",
-      "status": "premium"
-    },
-    "3923e259f8a7202304f9cd1b41e73b0f93e78b7da0d268028de340fae9c6c03e": {
-      "userid": 7664988994,
-      "username": "Sandrerk",
-      "status": "premium"
-    },
-    "486a7f054b5fa14aba30ffb0a7fb3e48709bb4d6cf8628e2c1baf9eabe499a16": {
-      "userid": 8509625302,
-      "username": "OrbiusXP",
-      "status": "premium"
-    },
-    "2ebe8df039579179aa230d603f992d607ba40128c8b0ff1189ba2c501bc2e550": {
-      "userid": 1055985255,
-      "username": "bibob5814",
-      "status": "premium"
-    },
-    "d0b8493c15746ced32a33345691a44f9afb49ec104482c2d8ae563e8c4945811": {
-      "userid": 7261583068,
-      "username": "bestpvpintheworld4",
-      "status": "premium"
-    },
-    "f4235a1446e097895c8997fecaaf070e046735b9c29539416e831a1fd0f5b6df": {
-      "username": "DidIJustClap",
-      "userid": 3201640363,
-      "status": "premium",
-      "added": "2025-07-05T16:36:30.018Z"
-    },
-    "bd00b0eab0cc38089d4cbc6e7975399841c0b049a429210d7166d4ecae428ae8": {
-      "username": "Jaxon_Fury10",
-      "userid": 8311386572,
-      "status": "free",
-      "added": "2025-07-06T01:59:44.390Z"
-    },
-    "6ff644fa40caf816a2b4943b36ac79e8f38897e0ba13290685d27267a619b6d1": {
-      "username": "saidmakalhubisgood6",
-      "userid": 8848908463,
-      "status": "free",
-      "added": "2025-07-06T08:27:53.129Z"
-    },
-    "508efd97c289ff4ffb188a64e63bffd3194ff3d10e4828ce477c865e89e25161": {
-      "username": "skibidiihiomsisgs",
-      "userid": 8795849376,
-      "status": "free",
-      "added": "2025-07-06T14:34:41.670Z"
-    },
-    "0e5b3c28158c8df75f524c3d50fe0308ae35f02f2cd1f97fc5a470b97e7be384": {
-      "username": "stealabraineotlegit",
-      "userid": 8765775772,
-      "status": "premium",
-      "added": "2025-07-07T01:13:26.546Z"
-    },
-    "b76587ab627cfb405484b0ffda7606e757e053010ac654ab6d1b1b85a8e4d806": {
-      "username": "hguhuihihiihiuhih",
-      "userid": 7187834733,
-      "status": "free",
-      "added": "2025-07-07T02:14:40.921Z"
-    },
-    "7c0575455e73c5ddc9bddd685cf3b58fa2ae1e2c059377c4f3c112541376cbab": {
-      "username": "%s",
-      "userid": null,
-      "status": "free",
-      "added": "2025-07-07T04:49:56.078Z"
-    },
-    "1ea391479a5ed30164d19949718c0e153cd6462448bee747241c96cfbcbcd7bb": {
-      "username": "123",
-      "userid": null,
-      "status": "free",
-      "added": "2025-07-07T04:50:34.954Z"
-    },
-    "f164444f7ef487467f8715704affd3c959f259a4641b8a510848ce22ebaa9f9c": {
-      "username": "123",
-      "userid": null,
-      "status": "free",
-      "added": "2025-07-07T04:50:40.756Z"
-    },
-    "2045b5354cc792c3941af92540d1581ef88cc4ef86e6f5adf93a29c5781d7809": {
-      "username": "HBT_4KOFYN",
-      "userid": 7176532147,
-      "status": "free",
-      "added": "2025-07-07T06:53:38.837Z"
-    },
-    "344dd911379d00ab3eaadeb11ab13626082c37c778154202a37ade36ade45004": {
-      "username": "bowhim6",
-      "userid": 7965337428,
-      "status": "premium",
-      "added": "2025-07-07T10:57:58.891Z"
-    },
-    "631d6707515470cb220da6778ab1b59a859f6a623c76e154ade58307cd323f6b": {
-      "username": "MegaNuttBlast",
-      "userid": 8827071390,
-      "status": "free",
-      "added": "2025-07-07T20:49:25.977Z"
-    },
-    "1e96f55d3825e40d6b2771283a2768d347a48c84a017caa2fb56b3d7f19f0f48": {
-      "username": "asdascvdasdas",
-      "userid": 8863153447,
-      "status": "free",
-      "added": "2025-07-07T23:05:59.695Z"
-    },
-    "b80768fdf7a0a59962c9e154457baf222714b2a2d9995a1c08fed947b2679dcc": {
-      "username": "ekekekke218",
-      "userid": 8868882461,
-      "status": "free",
-      "added": "2025-07-08T15:08:16.691Z"
-    },
-    "e2df7a8b0b76aae1996a93f5415c6fb2d5af5895c5e2046272ad5a4de4ec276d": {
-      "username": "jayvcix",
-      "userid": 8386528778,
-      "status": "premium",
-      "added": "2025-07-08T16:06:31.352Z"
-    },
     "f9b1b943646fc43ddb8a7d0c3c080697582b54d8062f3e71d2fc66f11fb9bc30": {
       "userid": 5763190467,
       "username": "Makalyxz",
-      "status": "free",
+      "status": "premium",
       "added": "2025-07-09T00:16:40.998Z"
     },
     "22c1958d49e82d55e12fcd34af5accce8d0304596e88f1dffa4dd4c61725e52d": {
@@ -135,7 +15,7 @@
     "61b608fd7ec8507800b2eeb884416129a5f98d103fbb5061569f2d24d85026a9": {
       "userid": 8765775772,
       "username": "stealabraineotlegit",
-      "status": "free",
+      "status": "premium",
       "added": "2025-07-09T02:10:05.369Z"
     }
   }
