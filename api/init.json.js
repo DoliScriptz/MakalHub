@@ -6,60 +6,61 @@ export default async function handler(req, res) {
   const { userid, username } = req.query;
   if (!userid || !username) return res.status(400).json({ status: "error" });
 
-  const base = `${userid}:${username}`;
-  const hwid = crypto.createHash("sha256").update(base).digest("hex");
+  const secret = process.env.HWID_SECRET || "";
+  const githubToken = process.env.GITHUB_TOKEN;
+
+  const hwid = crypto.createHmac("sha256", secret).update(`${userid}:${username}`).digest("hex");
 
   const owner = "DoliScriptz";
   const repo = "MakalHub";
-  const file = "hwids.json";
-  const token = process.env.GITHUB_TOKEN;
+  const path = "hwids.json";
 
+  let users = {};
   let sha = "";
-  let db = { users: {} };
 
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const json = await resp.json();
+  const resp = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    headers: { Authorization: `Bearer ${githubToken}` }
+  });
+
+  const json = await resp.json();
+  if (json.content) {
     sha = json.sha;
-    db = JSON.parse(Buffer.from(json.content, "base64").toString());
-  } catch {
-    db = { users: {} };
+    users = JSON.parse(Buffer.from(json.content, "base64").toString());
   }
 
-  if (!db.users[hwid]) {
-    db.users[hwid] = {
-      username,
+  users.users = users.users || {};
+
+  if (!users.users[hwid]) {
+    users.users[hwid] = {
       userid: Number(userid),
+      username,
       status: "free",
       added: new Date().toISOString()
     };
 
-    const updated = {
-      message: `Add user ${username}`,
-      content: Buffer.from(JSON.stringify(db, null, 2)).toString("base64"),
+    const payload = {
+      message: `register ${username}`,
+      content: Buffer.from(JSON.stringify(users, null, 2)).toString("base64"),
       sha
     };
 
-    await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`, {
+    await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${githubToken}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(updated)
+      body: JSON.stringify(payload)
     });
   }
 
-  const user = db.users[hwid];
   res.status(200).json({
     status: "success",
     user: {
       hwid,
-      username: user.username,
-      userid: user.userid,
-      status: user.status
+      userid: Number(userid),
+      username,
+      status: users.users[hwid].status
     }
   });
 }
