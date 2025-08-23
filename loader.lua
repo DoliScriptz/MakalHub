@@ -1,4 +1,3 @@
--- This file was protected using Luraph Obfuscator v14.4.1 [https://lura.ph/]
 -- [[
 JOIN MAKAL HUB discord.gg/makalhub
 JOIN MAKAL HUB discord.gg/makalhub
